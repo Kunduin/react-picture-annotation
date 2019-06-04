@@ -1,0 +1,95 @@
+{
+  "name": "react-picture-annotation",
+  "version": "0.0.1",
+  "description": "A simple annotation component.",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "typings": "dist/types/index.d.ts",
+  "scripts": {
+    "build": "tsc --module commonjs && rollup -c ./rollup.config.ts",
+    "storybook": "start-storybook -p 6006 --debug-webpack --no-dll",
+    "build-storybook": "build-storybook",
+    "commit": "npx git-cz",
+    "precommit": "lint-staged"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kunduin/react-picture-annotation.git"
+  },
+  "keywords": [
+    "react"
+  ],
+  "author": "Bay",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Kunduin/react-picture-annotation/issues"
+  },
+  "homepage": "https://github.com/Kunduin/react-picture-annotation#readme",
+  "peerDependencies": {
+    "react": ">=16.0.0",
+    "react-dom": ">= 16.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.4",
+    "@storybook/addon-a11y": "^5.0.11",
+    "@storybook/addon-actions": "^5.0.11",
+    "@storybook/addon-info": "^5.0.11",
+    "@storybook/addon-links": "^5.0.11",
+    "@storybook/addons": "^5.0.11",
+    "@storybook/react": "^5.0.11",
+    "@svgr/rollup": "^4.2.0",
+    "@types/jest": "^24.0.12",
+    "@types/react": "^16.8.17",
+    "@types/react-dom": "^16.8.4",
+    "@types/storybook__addon-a11y": "^5.0.0",
+    "@types/storybook__addon-actions": "^3.4.2",
+    "@types/storybook__react": "^4.0.1",
+    "babel-loader": "^8.0.5",
+    "commitizen": "^3.1.1",
+    "cz-conventional-changelog": "2.1.0",
+    "husky": "^2.2.0",
+    "jest": "^24.8.0",
+    "lint-staged": "^8.1.6",
+    "prettier": "^1.17.0",
+    "react-docgen-typescript-loader": "^3.1.0",
+    "rollup": "^1.11.3",
+    "rollup-plugin-commonjs": "^9.3.4",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^4.2.3",
+    "rollup-plugin-peer-deps-external": "^2.2.0",
+    "rollup-plugin-postcss": "^2.0.3",
+    "rollup-plugin-sourcemaps": "^0.4.2",
+    "rollup-plugin-typescript2": "^0.21.0",
+    "rollup-plugin-url": "^2.2.1",
+    "stylelint": "^10.0.1",
+    "stylelint-config-prettier": "^5.1.0",
+    "stylelint-config-rational-order": "^0.1.2",
+    "stylelint-config-standard": "^18.3.0",
+    "stylelint-declaration-block-no-ignored-properties": "^2.1.0",
+    "stylelint-order": "^3.0.0",
+    "ts-jest": "^24.0.2",
+    "tslint": "^5.16.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-react": "^4.0.0",
+    "typescript": "^3.4.5"
+  },
+  "dependencies": {},
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "lint-staged": {
+    "{stories,src}/**/*.css": "stylelint",
+    "{stories,src}/**/*.{ts,tsx}": [
+      "tslint --project tsconfig.json -c tslint.json --fix",
+      "prettier --write",
+      "git add"
+    ]
+  }
+}
