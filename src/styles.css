@@ -1,0 +1,14 @@
+.rus {
+  --theme-color: hsl(262, 24%, 84%);
+  --theme-background: hsl(262, 25%, 98%);
+
+  position: relative;
+  padding: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
+  background-color: var(--theme-background);
+  border: 1px dashed var(--theme-color);
+  border-radius: 5px;
+  cursor: pointer;
+}
