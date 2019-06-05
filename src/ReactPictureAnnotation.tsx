@@ -42,13 +42,21 @@ export default class ReactPictureAnnotation extends React.Component<
     }
   };
 
-  public calculateTruePosition = (shapeData: IShapeData): IShapeData => {
+  public calculateMousePosition = (positionX: number, positionY: number) => {
+    const { originX, originY, scale } = this.scaleState;
+    return {
+      positionX: (positionX - originX) / scale,
+      positionY: (positionY - originY) / scale
+    };
+  };
+
+  public calculateShapePosition = (shapeData: IShapeData): IShapeData => {
     const { originX, originY, scale } = this.scaleState;
     const { x, y, width, height } = shapeData;
     return {
       ...shapeData,
-      x: (originX + x) * scale,
-      y: (originY + y) * scale,
+      x: x * scale + originX,
+      y: y * scale + originY,
       width: width * scale,
       height: height * scale
     };
@@ -84,7 +92,7 @@ export default class ReactPictureAnnotation extends React.Component<
       for (const item of this.shapes) {
         item.paint(
           this.canvas2D,
-          this.calculateTruePosition,
+          this.calculateShapePosition,
           item.getAnnotationData().id === this.selectedId
         );
       }
@@ -93,12 +101,20 @@ export default class ReactPictureAnnotation extends React.Component<
 
   private onMouseDown: MouseEventHandler<HTMLCanvasElement> = event => {
     const { offsetX, offsetY } = event.nativeEvent;
-    this.currentAnnotationState.onMouseDown(offsetX, offsetY);
+    const { positionX, positionY } = this.calculateMousePosition(
+      offsetX,
+      offsetY
+    );
+    this.currentAnnotationState.onMouseDown(positionX, positionY);
   };
 
   private onMouseMove: MouseEventHandler<HTMLCanvasElement> = event => {
     const { offsetX, offsetY } = event.nativeEvent;
-    this.currentAnnotationState.onMouseMove(offsetX, offsetY);
+    const { positionX, positionY } = this.calculateMousePosition(
+      offsetX,
+      offsetY
+    );
+    this.currentAnnotationState.onMouseMove(positionX, positionY);
   };
 
   private onMouseUp: MouseEventHandler<HTMLCanvasElement> = () => {
@@ -106,6 +122,16 @@ export default class ReactPictureAnnotation extends React.Component<
   };
 
   private onWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
+    // https://stackoverflow.com/a/31133823/9071503
+    const { clientHeight, scrollTop, scrollHeight } = event.currentTarget;
+    if (clientHeight + scrollTop + event.deltaY > scrollHeight) {
+      event.preventDefault();
+      event.currentTarget.scrollTop = scrollHeight;
+    } else if (scrollTop + event.deltaY < 0) {
+      event.preventDefault();
+      event.currentTarget.scrollTop = 0;
+    }
+
     const { scale: preScale } = this.scaleState;
     this.scaleState.scale += event.deltaY * 0.005;
     if (this.scaleState.scale > 2) {
@@ -123,5 +149,7 @@ export default class ReactPictureAnnotation extends React.Component<
       offsetY - ((offsetY - originY) / preScale) * scale;
 
     requestAnimationFrame(this.onShapeChange);
+
+    return false;
   };
 }
