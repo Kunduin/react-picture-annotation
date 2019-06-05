@@ -16,7 +16,11 @@ export interface IShape {
   onDragStart: (positionX: number, positionY: number) => void;
   onDrag: (positionX: number, positionY: number) => void;
   checkBoundary: (positionX: number, positionY: number) => boolean;
-  paint: (canvas2D: CanvasRenderingContext2D, selected: boolean) => void;
+  paint: (
+    canvas2D: CanvasRenderingContext2D,
+    calculateTruePosition: (shapeData: IShapeData) => IShapeData,
+    selected: boolean
+  ) => void;
   getAnnotationData: () => IAnnotation;
   adjustMark: ({ width, height }: { width: number; height: number }) => void;
 }
@@ -60,10 +64,14 @@ export class RectShape implements IShape {
     return false;
   };
 
-  public paint = (canvas2D: CanvasRenderingContext2D, selected: boolean) => {
-    const {
-      mark: { x, y, width, height }
-    } = this.annotationData;
+  public paint = (
+    canvas2D: CanvasRenderingContext2D,
+    calculateTruePosition: (shapeData: IShapeData) => IShapeData,
+    selected: boolean
+  ) => {
+    const { x, y, width, height } = calculateTruePosition(
+      this.annotationData.mark
+    );
     canvas2D.save();
     if (selected) {
       canvas2D.strokeStyle = "green";

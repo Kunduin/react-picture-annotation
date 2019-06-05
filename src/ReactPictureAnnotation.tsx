@@ -1,6 +1,7 @@
 import React, { MouseEventHandler } from "react";
-import { IShape, RectShape } from "./Shape";
-import randomId from "./utils/randomId";
+import { IAnnotationState } from "./annotation/AnnotationState";
+import { DefaultAnnotationState } from "./annotation/DefaultAnnotationState";
+import { IShape, IShapeData } from "./Shape";
 
 interface IReactPictureAnnotationProps {
   onChange: () => void;
@@ -9,26 +10,48 @@ interface IReactPictureAnnotationProps {
   height: number;
 }
 
-enum AnnotationState {
-  DRAGGING,
-  CREATING,
-  NONE
+interface IStageState {
+  scale: number;
+  originX: number;
+  originY: number;
 }
+
+const defaultState: IStageState = {
+  scale: 1,
+  originX: 0,
+  originY: 0
+};
 
 export default class ReactPictureAnnotation extends React.Component<
   IReactPictureAnnotationProps
 > {
+  public shapes: IShape[] = [];
+  public selectedId: string;
+
   private canvasRef = React.createRef<HTMLCanvasElement>();
   private canvas2D?: CanvasRenderingContext2D | null;
-  private annotationState: AnnotationState = AnnotationState.NONE;
-  private shapes: IShape[] = [];
-  private selectedId: string;
+  private currentAnnotationState: IAnnotationState = new DefaultAnnotationState(
+    this
+  );
+  private scaleState = defaultState;
 
   public componentDidMount = () => {
     const currentCanvas = this.canvasRef.current;
     if (currentCanvas) {
       this.canvas2D = currentCanvas.getContext("2d");
     }
+  };
+
+  public calculateTruePosition = (shapeData: IShapeData): IShapeData => {
+    const { originX, originY, scale } = this.scaleState;
+    const { x, y, width, height } = shapeData;
+    return {
+      ...shapeData,
+      x: (originX + x) * scale,
+      y: (originY + y) * scale,
+      width: width * scale,
+      height: height * scale
+    };
   };
 
   public render() {
@@ -41,70 +64,16 @@ export default class ReactPictureAnnotation extends React.Component<
         onMouseMove={this.onMouseMove}
         onMouseUp={this.onMouseUp}
         onMouseLeave={this.onMouseUp}
+        onWheel={this.onWheel}
       />
     );
   }
 
-  private onMouseDown: MouseEventHandler<HTMLCanvasElement> = event => {
-    if (this.annotationState === AnnotationState.NONE) {
-      const { offsetX, offsetY } = event.nativeEvent;
-      for (let i = this.shapes.length - 1; i >= 0; i--) {
-        if (this.shapes[i].checkBoundary(offsetX, offsetY)) {
-          this.selectedId = this.shapes[i].getAnnotationData().id;
-          const [selectedShape] = this.shapes.splice(i, 1);
-          this.shapes.push(selectedShape);
-          selectedShape.onDragStart(offsetX, offsetY);
-          this.onShapeChange();
-          this.annotationState = AnnotationState.DRAGGING;
-          return;
-        }
-      }
-
-      this.annotationState = AnnotationState.CREATING;
-      this.shapes.push(
-        new RectShape(
-          {
-            id: randomId(),
-            mark: {
-              x: offsetX,
-              y: offsetY,
-              width: 0,
-              height: 0,
-              type: "RECT"
-            }
-          },
-          this.onShapeChange
-        )
-      );
-      this.onShapeChange();
-    }
+  public setAnnotationState = (annotationState: IAnnotationState) => {
+    this.currentAnnotationState = annotationState;
   };
 
-  private onMouseMove: MouseEventHandler<HTMLCanvasElement> = event => {
-    const { offsetX, offsetY } = event.nativeEvent;
-    if (
-      this.annotationState === AnnotationState.CREATING &&
-      this.shapes.length > 0
-    ) {
-      const currentShape = this.shapes[this.shapes.length - 1];
-      const {
-        mark: { x, y }
-      } = currentShape.getAnnotationData();
-      currentShape.adjustMark({
-        width: offsetX - x,
-        height: offsetY - y
-      });
-    } else if (this.annotationState === AnnotationState.DRAGGING) {
-      const currentShape = this.shapes[this.shapes.length - 1];
-      currentShape.onDrag(offsetX, offsetY);
-    }
-  };
-
-  private onMouseUp: MouseEventHandler<HTMLCanvasElement> = () => {
-    this.annotationState = AnnotationState.NONE;
-  };
-
-  private onShapeChange = () => {
+  public onShapeChange = () => {
     if (this.canvas2D && this.canvasRef.current) {
       this.canvas2D.clearRect(
         0,
@@ -115,9 +84,44 @@ export default class ReactPictureAnnotation extends React.Component<
       for (const item of this.shapes) {
         item.paint(
           this.canvas2D,
+          this.calculateTruePosition,
           item.getAnnotationData().id === this.selectedId
         );
       }
     }
+  };
+
+  private onMouseDown: MouseEventHandler<HTMLCanvasElement> = event => {
+    const { offsetX, offsetY } = event.nativeEvent;
+    this.currentAnnotationState.onMouseDown(offsetX, offsetY);
+  };
+
+  private onMouseMove: MouseEventHandler<HTMLCanvasElement> = event => {
+    const { offsetX, offsetY } = event.nativeEvent;
+    this.currentAnnotationState.onMouseMove(offsetX, offsetY);
+  };
+
+  private onMouseUp: MouseEventHandler<HTMLCanvasElement> = () => {
+    this.currentAnnotationState.onMouseUp();
+  };
+
+  private onWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
+    const { scale: preScale } = this.scaleState;
+    this.scaleState.scale += event.deltaY * 0.005;
+    if (this.scaleState.scale > 2) {
+      this.scaleState.scale = 2;
+    }
+    if (this.scaleState.scale < 0.4) {
+      this.scaleState.scale = 0.4;
+    }
+
+    const { originX, originY, scale } = this.scaleState;
+    const { offsetX, offsetY } = event.nativeEvent;
+    this.scaleState.originX =
+      offsetX - ((offsetX - originX) / preScale) * scale;
+    this.scaleState.originY =
+      offsetY - ((offsetY - originY) / preScale) * scale;
+
+    requestAnimationFrame(this.onShapeChange);
   };
 }
