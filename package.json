@@ -26,24 +26,24 @@
   },
   "homepage": "https://github.com/Kunduin/react-picture-annotation#readme",
   "peerDependencies": {
-    "react": ">=16.0.0",
-    "react-dom": ">= 16.0.0"
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.4",
-    "@storybook/addon-a11y": "^5.0.11",
-    "@storybook/addon-actions": "^5.0.11",
-    "@storybook/addon-info": "^5.0.11",
-    "@storybook/addon-links": "^5.0.11",
-    "@storybook/addons": "^5.0.11",
-    "@storybook/react": "^5.0.11",
+    "@babel/core": "^7.4.5",
+    "@storybook/addon-a11y": "^5.1.1",
+    "@storybook/addon-actions": "^5.1.1",
+    "@storybook/addon-info": "^5.1.1",
+    "@storybook/addon-links": "^5.1.1",
+    "@storybook/addons": "^5.1.1",
+    "@storybook/react": "^5.1.1",
     "@svgr/rollup": "^4.2.0",
     "@types/jest": "^24.0.12",
     "@types/react": "^16.8.17",
     "@types/react-dom": "^16.8.4",
     "@types/storybook__addon-a11y": "^5.0.0",
-    "@types/storybook__addon-actions": "^3.4.2",
-    "@types/storybook__react": "^4.0.1",
+    "@types/storybook__addon-actions": "^3.4.3",
+    "@types/storybook__react": "^4.0.2",
     "babel-loader": "^8.0.5",
     "commitizen": "^3.1.1",
     "cz-conventional-changelog": "2.1.0",
@@ -71,7 +71,7 @@
     "tslint": "^5.16.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-react": "^4.0.0",
-    "typescript": "^3.4.5"
+    "typescript": "^3.5.1"
   },
   "dependencies": {},
   "husky": {
