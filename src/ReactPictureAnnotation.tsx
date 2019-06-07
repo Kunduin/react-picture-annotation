@@ -1,13 +1,15 @@
 import React, { MouseEventHandler } from "react";
 import { IAnnotationState } from "./annotation/AnnotationState";
 import { DefaultAnnotationState } from "./annotation/DefaultAnnotationState";
-import { IShape, IShapeData } from "./Shape";
+import { IShape, IShapeBase } from "./Shape";
+import { ITransformer } from "./Transformer";
 
 interface IReactPictureAnnotationProps {
   onChange: () => void;
   onSelect: (id: string) => void;
   width: number;
   height: number;
+  image: string;
 }
 
 interface IStageState {
@@ -26,6 +28,7 @@ export default class ReactPictureAnnotation extends React.Component<
   IReactPictureAnnotationProps
 > {
   public shapes: IShape[] = [];
+  public currentTransformer: ITransformer;
   public selectedId: string;
 
   private canvasRef = React.createRef<HTMLCanvasElement>();
@@ -42,6 +45,13 @@ export default class ReactPictureAnnotation extends React.Component<
     }
   };
 
+  public componentDidUpdate = (preProps: IReactPictureAnnotationProps) => {
+    const { width, height } = this.props;
+    if (preProps.width !== width || preProps.height !== height) {
+      this.onShapeChange();
+    }
+  };
+
   public calculateMousePosition = (positionX: number, positionY: number) => {
     const { originX, originY, scale } = this.scaleState;
     return {
@@ -50,11 +60,10 @@ export default class ReactPictureAnnotation extends React.Component<
     };
   };
 
-  public calculateShapePosition = (shapeData: IShapeData): IShapeData => {
+  public calculateShapePosition = (shapeData: IShapeBase): IShapeBase => {
     const { originX, originY, scale } = this.scaleState;
     const { x, y, width, height } = shapeData;
     return {
-      ...shapeData,
       x: x * scale + originX,
       y: y * scale + originY,
       width: width * scale,
@@ -63,11 +72,13 @@ export default class ReactPictureAnnotation extends React.Component<
   };
 
   public render() {
+    const { width, height } = this.props;
     return (
       <canvas
+        // className="rp-shapes"
         ref={this.canvasRef}
-        width={this.props.width}
-        height={this.props.height}
+        width={width}
+        height={height}
         onMouseDown={this.onMouseDown}
         onMouseMove={this.onMouseMove}
         onMouseUp={this.onMouseUp}
@@ -90,11 +101,16 @@ export default class ReactPictureAnnotation extends React.Component<
         this.canvasRef.current.height
       );
       for (const item of this.shapes) {
-        item.paint(
-          this.canvas2D,
-          this.calculateShapePosition,
-          item.getAnnotationData().id === this.selectedId
-        );
+        const isSelected = item.getAnnotationData().id === this.selectedId;
+
+        item.paint(this.canvas2D, this.calculateShapePosition, isSelected);
+
+        if (isSelected && this.currentTransformer) {
+          this.currentTransformer.paint(
+            this.canvas2D,
+            this.calculateShapePosition
+          );
+        }
       }
     }
   };
@@ -125,10 +141,10 @@ export default class ReactPictureAnnotation extends React.Component<
     // https://stackoverflow.com/a/31133823/9071503
     const { clientHeight, scrollTop, scrollHeight } = event.currentTarget;
     if (clientHeight + scrollTop + event.deltaY > scrollHeight) {
-      event.preventDefault();
+      // event.preventDefault();
       event.currentTarget.scrollTop = scrollHeight;
     } else if (scrollTop + event.deltaY < 0) {
-      event.preventDefault();
+      // event.preventDefault();
       event.currentTarget.scrollTop = 0;
     }
 

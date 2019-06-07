@@ -1,4 +1,4 @@
-.rus {
+/* .rus {
   --theme-color: hsl(262, 24%, 84%);
   --theme-background: hsl(262, 25%, 98%);
 
@@ -11,4 +11,25 @@
   border: 1px dashed var(--theme-color);
   border-radius: 5px;
   cursor: pointer;
+} */
+
+.rp-stage {
+  position: relative;
+}
+
+.rp-image {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+.rp-shapes {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
 }
