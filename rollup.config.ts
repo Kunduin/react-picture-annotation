@@ -7,7 +7,7 @@ import babel from "rollup-plugin-babel";
 import json from "rollup-plugin-json";
 import external from "rollup-plugin-peer-deps-external";
 import postcss from "rollup-plugin-postcss";
-import typescript from "rollup-plugin-typescript2";
+// import typescript from "rollup-plugin-typescript2";
 import url from "rollup-plugin-url";
 
 // tslint:disable-next-line: no-var-requires
