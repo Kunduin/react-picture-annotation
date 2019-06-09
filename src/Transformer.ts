@@ -52,13 +52,18 @@ export default class Transformer implements ITransformer {
     canvas2D.fillStyle = "#5c7cfa";
 
     for (const item of allCentersTable) {
-      const { x, y, width, height } = calculateTruePosition({
-        x: item.x - NODE_WIDTH / 2,
-        y: item.y - NODE_WIDTH / 2,
-        width: NODE_WIDTH,
-        height: NODE_WIDTH
+      const { x, y } = calculateTruePosition({
+        x: item.x,
+        y: item.y,
+        width: 0,
+        height: 0
       });
-      canvas2D.fillRect(x, y, width, height);
+      canvas2D.fillRect(
+        x - NODE_WIDTH / 2,
+        y - NODE_WIDTH / 2,
+        NODE_WIDTH,
+        NODE_WIDTH
+      );
     }
 
     canvas2D.restore();
