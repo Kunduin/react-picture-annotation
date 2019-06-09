@@ -49,7 +49,7 @@ export default class Transformer implements ITransformer {
   ) => {
     const allCentersTable = this.getAllCentersTable();
     canvas2D.save();
-    canvas2D.fillStyle = "red";
+    canvas2D.fillStyle = "#5c7cfa";
 
     for (const item of allCentersTable) {
       const { x, y, width, height } = calculateTruePosition({

@@ -33,3 +33,29 @@
   bottom: 0;
   left: 0;
 }
+
+.rp-selected-input {
+  position: absolute;
+  display: flex;
+  background: white;
+}
+
+.rp-delete {
+  width: 17px;
+  height: 17px;
+  margin-right: 2px;
+  padding: 2px;
+  background-color: #36f;
+  cursor: pointer;
+  fill: white;
+}
+
+.rp-delete:hover {
+  background-color: rgb(83, 126, 255);
+}
+
+.rp-delete-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

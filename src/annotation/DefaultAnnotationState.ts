@@ -13,7 +13,14 @@ export class DefaultAnnotationState implements IAnnotationState {
     this.context = context;
   }
   public onMouseMove = () => undefined;
-  public onMouseUp = () => undefined;
+  public onMouseUp = () => {
+    const { shapes, onShapeChange } = this.context;
+    const data = shapes.pop();
+    if (data && data.getAnnotationData().mark.width !== 0) {
+      shapes.push(data);
+    }
+    onShapeChange();
+  };
 
   public onMouseDown = (positionX: number, positionY: number) => {
     const {

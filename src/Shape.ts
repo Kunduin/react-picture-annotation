@@ -1,5 +1,18 @@
 import { IAnnotation } from "./Annotation";
 
+export const shapeStyle = {
+  padding: 5,
+  margin: 10,
+  fontSize: 12,
+  fontColor: "#212529",
+  fontBackground: "#f8f9fa",
+  fontFamily:
+    "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', Helvetica, Arial, sans-serif",
+  shapeBackground: "hsla(210, 16%, 93%, 0.2)",
+  shapeStrokeStyle: "#f8f9fa",
+  shapeShadowStyle: "#868e96"
+};
+
 export interface IShapeBase {
   x: number;
   y: number;
@@ -30,19 +43,21 @@ export interface IShape {
     canvas2D: CanvasRenderingContext2D,
     calculateTruePosition: (shapeData: IShapeBase) => IShapeBase,
     selected: boolean
-  ) => void;
+  ) => IShapeBase;
   getAnnotationData: () => IAnnotation;
   adjustMark: (adjustBase: IShapeAdjustBase) => void;
+  setComment: (comment: string) => void;
+  equal: (data: IAnnotation) => boolean;
 }
 
 export class RectShape implements IShape {
-  private annotationData: IAnnotation<IRectShapeData>;
+  private annotationData: IAnnotation<IShapeData>;
 
   private onChangeCallBack: () => void;
 
   private dragStartOffset: { offsetX: number; offsetY: number };
 
-  constructor(data: IAnnotation<IRectShapeData>, onChange: () => void) {
+  constructor(data: IAnnotation<IShapeData>, onChange: () => void) {
     this.annotationData = data;
     this.onChangeCallBack = onChange;
   }
@@ -86,13 +101,44 @@ export class RectShape implements IShape {
       this.annotationData.mark
     );
     canvas2D.save();
-    if (selected) {
-      canvas2D.strokeStyle = "green";
-      canvas2D.fillStyle = "green";
-      canvas2D.fillRect(x, y, width, height);
-    }
+
+    canvas2D.shadowBlur = 10;
+    canvas2D.shadowColor = shapeStyle.shapeShadowStyle;
+    canvas2D.strokeStyle = shapeStyle.shapeStrokeStyle;
+    canvas2D.lineWidth = 2;
     canvas2D.strokeRect(x, y, width, height);
     canvas2D.restore();
+    if (selected) {
+      canvas2D.fillStyle = shapeStyle.shapeBackground;
+      canvas2D.fillRect(x, y, width, height);
+    } else {
+      const { comment } = this.annotationData;
+      if (comment) {
+        canvas2D.font = `${shapeStyle.fontSize}px ${shapeStyle.fontFamily}`;
+        const metrics = canvas2D.measureText(comment);
+        canvas2D.save();
+        canvas2D.shadowBlur = 10;
+        canvas2D.shadowColor = shapeStyle.shapeShadowStyle;
+        canvas2D.fillStyle = shapeStyle.fontBackground;
+        canvas2D.fillRect(
+          x,
+          y + height + shapeStyle.margin,
+          metrics.width + shapeStyle.padding * 2,
+          shapeStyle.fontSize + shapeStyle.padding * 2
+        );
+        canvas2D.restore();
+        canvas2D.textBaseline = "top";
+        canvas2D.fillStyle = shapeStyle.fontColor;
+        canvas2D.fillText(
+          comment,
+          x + shapeStyle.padding,
+          y + height + shapeStyle.padding + shapeStyle.margin
+        );
+      }
+    }
+    canvas2D.restore();
+
+    return { x, y, width, height };
   };
 
   public adjustMark = ({
@@ -115,5 +161,20 @@ export class RectShape implements IShape {
 
   public getAnnotationData = () => {
     return this.annotationData;
+  };
+
+  public setComment = (comment: string) => {
+    this.annotationData.comment = comment;
+  };
+
+  public equal = (data: IAnnotation) => {
+    return (
+      data.id === this.annotationData.id &&
+      data.comment === this.annotationData.comment &&
+      data.mark.x === this.annotationData.mark.x &&
+      data.mark.y === this.annotationData.mark.y &&
+      data.mark.width === this.annotationData.mark.width &&
+      data.mark.height === this.annotationData.mark.height
+    );
   };
 }
