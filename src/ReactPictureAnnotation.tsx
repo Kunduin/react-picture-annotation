@@ -158,7 +158,7 @@ export default class ReactPictureAnnotation extends React.Component<
           onMouseDown={this.onMouseDown}
           onMouseMove={this.onMouseMove}
           onMouseUp={this.onMouseUp}
-          onMouseLeave={this.onMouseUp}
+          onMouseLeave={this.onMouseLeave}
           onWheel={this.onWheel}
         />
         {showInput && (
@@ -381,6 +381,10 @@ export default class ReactPictureAnnotation extends React.Component<
 
   private onMouseUp: MouseEventHandler<HTMLCanvasElement> = () => {
     this.currentAnnotationState.onMouseUp();
+  };
+
+  private onMouseLeave: MouseEventHandler<HTMLCanvasElement> = () => {
+    this.currentAnnotationState.onMouseLeave();
   };
 
   private onWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {

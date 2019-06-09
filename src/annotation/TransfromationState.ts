@@ -19,4 +19,6 @@ export default class TransformationState implements IAnnotationState {
     const { setAnnotationState } = this.context;
     setAnnotationState(new DefaultAnnotationState(this.context));
   };
+
+  public onMouseLeave = () => this.onMouseUp();
 }
