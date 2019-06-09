@@ -1,16 +1,11 @@
 import React from "react";
 
-export default ({
-  onClick
-}: {
-  onClick: (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => void;
-}) => {
+export default () => {
   return (
     <svg
       className="rp-delete"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
-      onClick={onClick}
     >
       <g data-name="Layer 2">
         <g data-name="trash-2">

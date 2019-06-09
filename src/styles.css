@@ -15,6 +15,9 @@
 
 .rp-stage {
   position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
 }
 
 .rp-image {
@@ -36,26 +39,55 @@
 
 .rp-selected-input {
   position: absolute;
-  display: flex;
-  background: white;
 }
 
 .rp-delete {
-  width: 17px;
-  height: 17px;
-  margin-right: 2px;
-  padding: 2px;
-  background-color: #36f;
-  cursor: pointer;
+  width: 20px;
+  height: 20px;
   fill: white;
-}
-
-.rp-delete:hover {
-  background-color: rgb(83, 126, 255);
 }
 
 .rp-delete-section {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.rp-default-input-section {
+  display: flex;
+  align-items: stretch;
+  background-color: #3384ff;
+  border: none;
+  border-radius: 5px;
+}
+
+.rp-default-input-section input {
+  padding: 10px;
+  color: white;
+  background: transparent;
+  border: 0;
+  outline: none;
+}
+
+.rp-default-input-section input::placeholder {
+  color: #94bfff;
+}
+
+.rp-default-input-section a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  color: white;
+  font-size: 12px;
+  background-color: #3b5bdb;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+  transition: background-color 0.5s, color 0.5s;
+}
+
+.rp-default-input-section a:hover,
+.rp-default-input-section a:active {
+  color: #3384ff;
+  background-color: #5c7cfa;
 }

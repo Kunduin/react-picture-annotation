@@ -10,7 +10,7 @@ export const shapeStyle = {
     "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', Helvetica, Arial, sans-serif",
   shapeBackground: "hsla(210, 16%, 93%, 0.2)",
   shapeStrokeStyle: "#f8f9fa",
-  shapeShadowStyle: "#868e96"
+  shapeShadowStyle: "hsla(210, 9%, 31%, 0.35)"
 };
 
 export interface IShapeBase {
@@ -117,22 +117,19 @@ export class RectShape implements IShape {
         canvas2D.font = `${shapeStyle.fontSize}px ${shapeStyle.fontFamily}`;
         const metrics = canvas2D.measureText(comment);
         canvas2D.save();
-        canvas2D.shadowBlur = 10;
-        canvas2D.shadowColor = shapeStyle.shapeShadowStyle;
         canvas2D.fillStyle = shapeStyle.fontBackground;
         canvas2D.fillRect(
           x,
-          y + height + shapeStyle.margin,
+          y,
           metrics.width + shapeStyle.padding * 2,
           shapeStyle.fontSize + shapeStyle.padding * 2
         );
-        canvas2D.restore();
         canvas2D.textBaseline = "top";
         canvas2D.fillStyle = shapeStyle.fontColor;
         canvas2D.fillText(
           comment,
           x + shapeStyle.padding,
-          y + height + shapeStyle.padding + shapeStyle.margin
+          y + shapeStyle.padding
         );
       }
     }

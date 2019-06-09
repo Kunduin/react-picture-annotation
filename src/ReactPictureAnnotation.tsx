@@ -2,7 +2,8 @@ import React, { MouseEventHandler } from "react";
 import { IAnnotation } from "./Annotation";
 import { IAnnotationState } from "./annotation/AnnotationState";
 import { DefaultAnnotationState } from "./annotation/DefaultAnnotationState";
-import DeleteButton from "./DeleteButton";
+import DefaultInputSection from "./DefaultInputSection";
+// import DeleteButton from "./DeleteButton";
 import { IShape, IShapeBase, RectShape, shapeStyle } from "./Shape";
 import { ITransformer } from "./Transformer";
 
@@ -17,7 +18,7 @@ interface IReactPictureAnnotationProps {
   inputElement: (
     value: string,
     onChange: (value: string) => void,
-    style: React.CSSProperties
+    onDelete: () => void
   ) => React.ReactElement;
 }
 
@@ -49,12 +50,12 @@ export default class ReactPictureAnnotation extends React.Component<
     inputElement: (
       value: string,
       onChange: (value: string) => void,
-      style: React.CSSProperties
+      onDelete: () => void
     ) => (
-      <input
+      <DefaultInputSection
         value={value}
-        style={style}
-        onChange={e => onChange(e.target.value)}
+        onChange={onChange}
+        onDelete={onDelete}
       />
     )
   };
@@ -161,23 +162,12 @@ export default class ReactPictureAnnotation extends React.Component<
           onWheel={this.onWheel}
         />
         {showInput && (
-          <div
-            className="rp-selected-input"
-            style={{
-              ...inputPosition,
-
-              boxShadow: `0 0 10px ${shapeStyle.shapeShadowStyle}`
-            }}
-          >
-            {inputElement(inputComment, this.onInputCommentChange, {
-              padding: shapeStyle.padding,
-              fontSize: shapeStyle.fontSize,
-              color: shapeStyle.fontColor,
-              border: 0
-            })}
-            <div className="rp-delete-section">
-              <DeleteButton onClick={this.onDelete} />
-            </div>
+          <div className="rp-selected-input" style={inputPosition}>
+            {inputElement(
+              inputComment,
+              this.onInputCommentChange,
+              this.onDelete
+            )}
           </div>
         )}
       </div>
