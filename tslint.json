@@ -2,6 +2,7 @@
   "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier"],
   "rules": {
     "object-literal-sort-keys": false,
-    "forin": false
+    "forin": false,
+    "jsx-no-lambda": false
   }
 }

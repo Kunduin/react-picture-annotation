@@ -1,12 +1,12 @@
 {
   "name": "react-picture-annotation",
-  "version": "0.0.1",
+  "version": "0.0.6",
   "description": "A simple annotation component.",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
-  "typings": "dist/types/index.d.ts",
+  "typings": "dist/types/src/index.d.ts",
   "scripts": {
-    "build": "tsc --module commonjs && rollup -c ./rollup.config.ts",
+    "build": "rm -r ./dist && tsc && rollup -c ./rollup.config.ts",
     "storybook": "start-storybook -p 6006 --debug-webpack --no-dll",
     "build-storybook": "build-storybook",
     "commit": "npx git-cz",
@@ -26,11 +26,15 @@
   },
   "homepage": "https://github.com/Kunduin/react-picture-annotation#readme",
   "peerDependencies": {
-    "react": ">=16.8.0",
-    "react-dom": ">=16.8.0"
+    "react": ">=16.0.0",
+    "react-dom": ">=16.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.4.5",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.4.4",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/preset-typescript": "^7.3.3",
     "@storybook/addon-a11y": "^5.1.1",
     "@storybook/addon-actions": "^5.1.1",
     "@storybook/addon-info": "^5.1.1",
@@ -53,6 +57,7 @@
     "prettier": "^1.17.0",
     "react-docgen-typescript-loader": "^3.1.0",
     "rollup": "^1.11.3",
+    "rollup-plugin-babel": "^4.3.2",
     "rollup-plugin-commonjs": "^9.3.4",
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-node-resolve": "^4.2.3",
