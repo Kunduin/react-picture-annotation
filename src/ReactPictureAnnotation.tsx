@@ -105,6 +105,7 @@ export default class ReactPictureAnnotation extends React.Component<
       this.onImageChange();
     }
     if (preProps.image !== image) {
+      this.cleanImage();
       if (this.currentImageElement) {
         this.currentImageElement.src = image;
       } else {
@@ -277,6 +278,7 @@ export default class ReactPictureAnnotation extends React.Component<
 
     if (selectedId && selectedId !== this.selectedId) {
       this.selectedId = selectedId;
+      this.onShapeChange();
     }
   };
 
@@ -312,7 +314,7 @@ export default class ReactPictureAnnotation extends React.Component<
     this.setState({ inputComment: comment });
   };
 
-  private onImageChange = () => {
+  private cleanImage = () => {
     if (this.imageCanvas2D && this.imageCanvasRef.current) {
       this.imageCanvas2D.clearRect(
         0,
@@ -320,6 +322,12 @@ export default class ReactPictureAnnotation extends React.Component<
         this.imageCanvasRef.current.width,
         this.imageCanvasRef.current.height
       );
+    }
+  };
+
+  private onImageChange = () => {
+    this.cleanImage();
+    if (this.imageCanvas2D && this.imageCanvasRef.current) {
       if (this.currentImageElement) {
         const { originX, originY, scale } = this.scaleState;
         this.imageCanvas2D.drawImage(
@@ -331,10 +339,32 @@ export default class ReactPictureAnnotation extends React.Component<
         );
       } else {
         const nextImageNode = document.createElement("img");
-        nextImageNode.onload = () => {
+        nextImageNode.addEventListener("load", () => {
           this.currentImageElement = nextImageNode;
+          const { width, height } = nextImageNode;
+          const imageNodeRatio = height / width;
+          const { width: canvasWidth, height: canvasHeight } = this.props;
+          const canvasNodeRatio = canvasHeight / canvasWidth;
+          if (!isNaN(imageNodeRatio) && !isNaN(canvasNodeRatio)) {
+            if (imageNodeRatio < canvasNodeRatio) {
+              const scale = canvasWidth / width;
+              this.scaleState = {
+                originX: 0,
+                originY: (canvasHeight - scale * height) / 2,
+                scale
+              };
+            } else {
+              const scale = canvasHeight / height;
+              this.scaleState = {
+                originX: (canvasWidth - scale * width) / 2,
+                originY: 0,
+                scale
+              };
+            }
+          }
           this.onImageChange();
-        };
+          this.onShapeChange();
+        });
         nextImageNode.alt = "";
         nextImageNode.src = this.props.image;
       }
@@ -376,11 +406,11 @@ export default class ReactPictureAnnotation extends React.Component<
 
     const { scale: preScale } = this.scaleState;
     this.scaleState.scale += event.deltaY * 0.005;
-    if (this.scaleState.scale > 2) {
-      this.scaleState.scale = 2;
+    if (this.scaleState.scale > 10) {
+      this.scaleState.scale = 10;
     }
-    if (this.scaleState.scale < 0.4) {
-      this.scaleState.scale = 0.4;
+    if (this.scaleState.scale < 0.1) {
+      this.scaleState.scale = 0.1;
     }
 
     const { originX, originY, scale } = this.scaleState;
