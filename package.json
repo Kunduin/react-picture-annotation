@@ -6,7 +6,7 @@
   "module": "dist/index.es.js",
   "typings": "dist/types/src/index.d.ts",
   "scripts": {
-    "build": "rm -r ./dist && tsc && rollup -c ./rollup.config.ts",
+    "build": "tsc --build && rollup -c ./rollup.config.ts",
     "storybook": "start-storybook -p 6006 --debug-webpack --no-dll",
     "build-storybook": "build-storybook",
     "commit": "npx git-cz",
