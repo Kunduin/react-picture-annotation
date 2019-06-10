@@ -1,6 +1,6 @@
 {
   "name": "react-picture-annotation",
-  "version": "0.1.2",
+  "version": "0.0.0-development",
   "description": "A simple annotation component.",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -11,11 +11,12 @@
     "build-storybook": "build-storybook",
     "commit": "npx git-cz",
     "precommit": "lint-staged",
-    "publish": "npm run build && npm publish"
+    "lib:publish": "npm run build && npm publish",
+    "semantic-release": "semantic-release"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Kunduin/react-picture-annotation.git"
+    "url": "https://github.com/Kunduin/react-picture-annotation.git"
   },
   "keywords": [
     "react"
@@ -77,7 +78,8 @@
     "tslint": "^5.16.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-react": "^4.0.0",
-    "typescript": "^3.5.1"
+    "typescript": "^3.5.1",
+    "semantic-release": "^15.13.12"
   },
   "dependencies": {},
   "husky": {
