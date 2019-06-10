@@ -1,3 +1,35 @@
 language: node_js
+
+services:
+  - docker
+
 node_js:
-  - node
+  - 10
+  - 8
+
+# Trigger a push build on master and greenkeeper branches + PRs build on every branches
+# Avoid double build on PRs (See https://github.com/travis-ci/travis-ci/issues/1147)
+branches:
+  only:
+    - master
+    - /^greenkeeper.*$/
+
+    # Retry install on fail to avoid failing a build on network/disk/external errors
+install:
+  - travis_retry npm install
+
+script:
+  - npm run build
+
+jobs:
+  include:
+    # Define the release stage that runs semantic-release
+    - stage: release
+      node_js: lts/*
+      # Advanced: optionally overwrite your default `script` step to skip the tests
+      # script: skip
+      deploy:
+        provider: script
+        skip_cleanup: true
+        script:
+          - npx semantic-release
