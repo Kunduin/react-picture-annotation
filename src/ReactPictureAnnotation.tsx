@@ -273,12 +273,11 @@ export default class ReactPictureAnnotation extends React.Component<
   };
 
   private onDelete = () => {
-    if (
-      this.shapes.length > 0 &&
-      this.shapes[this.shapes.length - 1].getAnnotationData().id ===
-        this.selectedId
-    ) {
-      this.shapes.pop();
+    const deleteTarget = this.shapes.findIndex(
+      shape => shape.getAnnotationData().id === this.selectedId
+    );
+    if (deleteTarget >= 0) {
+      this.shapes.splice(deleteTarget, 1);
       this.onShapeChange();
     }
   };
