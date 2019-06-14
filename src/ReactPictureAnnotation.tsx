@@ -5,11 +5,11 @@ import { DefaultAnnotationState } from "./annotation/DefaultAnnotationState";
 import DefaultInputSection from "./DefaultInputSection";
 // import DeleteButton from "./DeleteButton";
 import { IShape, IShapeBase, RectShape, shapeStyle } from "./Shape";
-import { ITransformer } from "./Transformer";
+import Transformer, { ITransformer } from "./Transformer";
 
 interface IReactPictureAnnotationProps {
   annotationData?: IAnnotation[];
-  selectedId?: string;
+  selectedId?: string | null;
   onChange: (annotationData: IAnnotation[]) => void;
   onSelect: (id: string | null) => void;
   width: number;
@@ -191,14 +191,17 @@ export default class ReactPictureAnnotation extends React.Component<
 
       for (const item of this.shapes) {
         const isSelected = item.getAnnotationData().id === this.selectedId;
-
         const { x, y, height } = item.paint(
           this.canvas2D,
           this.calculateShapePosition,
           isSelected
         );
 
-        if (isSelected && this.currentTransformer) {
+        if (isSelected) {
+          if (!this.currentTransformer) {
+            this.currentTransformer = new Transformer(item);
+          }
+
           hasSelectedItem = true;
 
           this.currentTransformer.paint(
