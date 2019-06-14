@@ -14,46 +14,51 @@ storiesOf("Hello World", module)
   .add("with text", () => {
     const AnnotationComponent = () => {
       const [size, setSize] = useState({
-        width: window.innerWidth,
-        height: window.innerHeight
+        width: window.innerWidth - 16,
+        height: window.innerHeight - 16
       });
-
-      const [image, setImage] = useState(
-        "https://bequank.oss-cn-beijing.aliyuncs.com/landpage/large/60682895_p0_master1200.jpg"
-      );
 
       const [annotationData, setAnnotationData] = useState<
         Array<IAnnotation<IShapeData>>
-      >([]);
+      >([
+        {
+          id: "a",
+          comment: "HA HA HA",
+          mark: {
+            type: "RECT",
+            width: 161,
+            height: 165,
+            x: 229,
+            y: 92
+          }
+        }
+      ]);
+
+      const [selectedId, setSelectedId] = useState<string | null>("a");
 
       const onResize = () => {
-        setSize({ width: window.innerWidth, height: window.innerHeight });
+        setSize({
+          width: window.innerWidth - 16,
+          height: window.innerHeight - 16
+        });
       };
 
       useEffect(() => {
         window.addEventListener("resize", onResize);
-        setTimeout(() => {
-          setImage(
-            "https://bequank.oss-cn-beijing.aliyuncs.com/landpage/large/20180904.jpg"
-          );
-          setAnnotationData([]);
-        }, 2000);
         return () => {
           window.removeEventListener("resize", onResize);
         };
       }, []);
 
       return (
-        // tslint:disable-next-line: jsx-no-lambda
         <ReactPictureAnnotation
           width={size.width}
           height={size.height}
           annotationData={annotationData}
-          // tslint:disable-next-line: jsx-no-lambda
           onChange={data => setAnnotationData(data)}
-          // tslint:disable-next-line: jsx-no-lambda
-          onSelect={() => null}
-          image={image}
+          selectedId={selectedId}
+          onSelect={e => setSelectedId(e)}
+          image="https://bequank.oss-cn-beijing.aliyuncs.com/landpage/large/60682895_p0_master1200.jpg"
         />
       );
     };
