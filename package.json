@@ -19,7 +19,10 @@
     "url": "https://github.com/Kunduin/react-picture-annotation.git"
   },
   "keywords": [
-    "react"
+    "react",
+    "typescript-library",
+    "javascript-library",
+    "annotation"
   ],
   "author": "Bay",
   "license": "MIT",
@@ -79,7 +82,7 @@
     "tslint-config-prettier": "^1.18.0",
     "tslint-react": "^4.0.0",
     "typescript": "^3.5.1",
-    "semantic-release": "^15.13.12"
+    "semantic-release": "^15.13.16"
   },
   "dependencies": {},
   "husky": {
