@@ -72,7 +72,7 @@
     "rollup-plugin-typescript2": "^0.21.0",
     "rollup-plugin-url": "^2.2.1",
     "stylelint": "^10.0.1",
-    "stylelint-config-prettier": "^5.1.0",
+    "stylelint-config-prettier": "^6.0.0",
     "stylelint-config-rational-order": "^0.1.2",
     "stylelint-config-standard": "^18.3.0",
     "stylelint-declaration-block-no-ignored-properties": "^2.1.0",
