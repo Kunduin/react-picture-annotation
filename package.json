@@ -51,7 +51,7 @@
     "@types/react": "^16.8.17",
     "@types/react-dom": "^16.8.4",
     "@types/storybook__addon-a11y": "^5.0.0",
-    "@types/storybook__addon-actions": "^3.4.3",
+    "@types/storybook__addon-actions": "^5.2.0",
     "@types/storybook__react": "^4.0.2",
     "babel-loader": "^8.0.5",
     "commitizen": "^4.0.0",
