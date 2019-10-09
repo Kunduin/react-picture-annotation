@@ -1,16 +1,15 @@
 import { withA11y } from "@storybook/addon-a11y";
-import { storiesOf, StoryDecorator } from "@storybook/react";
+import { addDecorator, storiesOf } from "@storybook/react";
 import React, { useEffect, useState } from "react";
 
 import { ReactPictureAnnotation } from "../src";
 import { IAnnotation } from "../src/Annotation";
 import { IShapeData } from "../src/Shape";
 
-const CenterDecorator: StoryDecorator = storyFn => <div>{storyFn()}</div>;
+addDecorator(storyFn => <div>{storyFn()}</div>);
 
 storiesOf("Hello World", module)
   .addDecorator(withA11y)
-  .addDecorator(CenterDecorator)
   .add("with text", () => {
     const AnnotationComponent = () => {
       const [size, setSize] = useState({
