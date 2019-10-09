@@ -62,8 +62,10 @@ ReactDOM.render(<App />, rootElement);
 **TYPE**
 
 ```ts
-Array<[IAnnotation](#iannotation)>
+Array<IAnnotation>
 ```
+
+see [IAnnotation](#iannotation)
 
 **COMMENT**
 
