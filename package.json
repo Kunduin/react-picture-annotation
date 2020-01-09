@@ -80,7 +80,7 @@
     "tslint-config-prettier": "^1.18.0",
     "tslint-react": "^4.0.0",
     "typescript": "^3.5.1",
-    "semantic-release": "^15.13.16"
+    "semantic-release": "^16.0.0"
   },
   "dependencies": {},
   "husky": {
