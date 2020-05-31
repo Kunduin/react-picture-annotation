@@ -57,7 +57,7 @@ ReactDOM.render(<App />, rootElement);
 
 ## Props
 
-### AnnotationData `not required`
+### annotationData `not required`
 
 **TYPE**
 
