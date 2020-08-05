@@ -5,7 +5,7 @@
     "baseUrl": "src",
     "rootDirs": ["src", "stories"],
     "module": "es2015",
-    "target": "esnext",
+    "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
     "sourceMap": true,
     "allowJs": false,
@@ -25,5 +25,7 @@
     "emitDecoratorMetadata": true
   },
   "include": ["src", "stories"],
-  "exclude": ["node_modules", "build", "dist", "example", "rollup.config.ts"]
+  "exclude": ["node_modules", "build", "dist", "example",
+    "rollup.config.js"
+  ]
 }
