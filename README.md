@@ -1,6 +1,6 @@
 # React Picture Annotation
 
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/kunduin/react-picture-annotation/blob/master/LICENSE) [![Travis (.com)](https://img.shields.io/travis/com/kunduin/react-picture-annotation.svg)](https://travis-ci.com/Kunduin/react-picture-annotation) [![npm](https://img.shields.io/npm/v/react-picture-annotation.svg)](https://www.npmjs.com/package/react-picture-annotation) [![Greenkeeper badge](https://badges.greenkeeper.io/Kunduin/react-picture-annotation.svg)](https://greenkeeper.io/)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/kunduin/react-picture-annotation/blob/master/LICENSE) [![Travis (.com)](https://img.shields.io/travis/com/kunduin/react-picture-annotation.svg)](https://travis-ci.com/Kunduin/react-picture-annotation) [![npm](https://img.shields.io/npm/v/react-picture-annotation.svg)](https://www.npmjs.com/package/react-picture-annotation)
 
 A simple annotation component.
 
@@ -55,119 +55,50 @@ const rootElement = document.getElementById('root');
 ReactDOM.render(<App />, rootElement);
 ```
 
-## Props
+## ReactPictureAnnotation Props
 
-### annotationData `not required`
+| Name            | Type                                                                                            | Comment                                    | required |
+| --------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------ | -------- |
+| onChange        | `(annotationData: IAnnotation[]) => void`                                                       | Called every time the shape changes.       | √        |
+| onSelected      | `(id: string or null) => void`                                                                  | Called each time the selection is changed. | √        |
+| width           | `number`                                                                                        | Width of the canvas.                       | √        |
+| height          | `number`                                                                                        | Height of the canvas.                      | √        |
+| image           | `string`                                                                                        | Image to be annotated.                     | √        |
+| inputElement    | `(value: string,onChange: (value: string) => void,onDelete: () => void) => React.ReactElement;` | Customizable input control.                | X        |
+| annotationData  | `Array<IAnnotation>`                                                                            | Control the marked areas on the page.      | X        |
+| annotationStyle | `IShapeStyle`                                                                                   | Control the mark style                     | X        |
+| selectedId      | `string or null`                                                                                | Selected markId                            | X        |
+| scrollSpeed     | `number`                                                                                        | Speed of wheel zoom, default 0.0005        | X        |
+| marginWithInput | `number`                                                                                        | Margin between input and mark, default 1   | X        |
 
-**TYPE**
+## IShapeStyle
 
-```ts
-Array<IAnnotation>
+ReactPictureAnnotation can be easily modified the style through a prop named `annotationStyle`                                                                                      
+
+```typescript
+export const defaultShapeStyle: IShapeStyle = {
+  /** text area **/
+  padding: 5, // text padding
+  fontSize: 12, // text font size
+  fontColor: "#212529", // text font color
+  fontBackground: "#f8f9fa", // text background color
+  fontFamily:
+    "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', Helvetica, Arial, sans-serif",
+  
+  /** stroke style **/
+  lineWidth: 2, // stroke width
+  shapeBackground: "hsla(210, 16%, 93%, 0.2)", // background color in the middle of the marker
+  shapeStrokeStyle: "#f8f9fa", // shape stroke color
+  shadowBlur: 10, // stroke shadow blur
+  shapeShadowStyle: "hsla(210, 9%, 31%, 0.35)", // shape shadow color
+  
+  /** transformer style **/
+  transformerBackground: "#5c7cfa",
+  transformerSize: 10
+};
 ```
 
-see [IAnnotation](#iannotation)
-
-**COMMENT**
-
-Control the marked areas on the page.
-
-### selectedId `not required`
-
-**TYPE**
-
-```ts
-string | null;
-```
-
-**COMMENT**
-
-Control the selected shape.
-
-### onChange `required`
-
-**TYPE**
-
-```ts
-(annotationData: IAnnotation[]) => void
-```
-
-**COMMENT**
-
-Called every time the shape changes.
-
-### onSelected `required`
-
-**TYPE**
-
-```ts
-(id: string | null) => void
-```
-
-**COMMENT**
-
-Called each time the selection is changed.
-
-### width `required`
-
-**TYPE**
-
-```ts
-number;
-```
-
-**COMMENT**
-
-Width of the canvas.
-
-### height `required`
-
-**TYPE**
-
-```ts
-number;
-```
-
-**COMMENT**
-
-Height of the canvas.
-
-### image `required`
-
-**TYPE**
-
-```ts
-string;
-```
-
-**COMMENT**
-
-Image to be annotated.
-
-### inputElement `not required`
-
-**TYPE**
-
-```ts
-(value: string, onChange: (value: string) => void, onDelete: () => void) =>
-  React.ReactElement;
-```
-
-**COMMENT**
-
-Customizable input control.
-
-**EXAMPLE**
-
-```jsx
-<ReactPictureAnnotation
-  {...props}
-  inputElement={inputProps => <MyInput {...inputProps} />}
-/>
-```
-
-## Types
-
-### IAnnotation
+## IAnnotation
 
 ```js
 {

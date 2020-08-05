@@ -3,7 +3,7 @@ import { IAnnotationState } from "./AnnotationState";
 import { DefaultAnnotationState } from "./DefaultAnnotationState";
 
 export default class TransformationState implements IAnnotationState {
-  private context: ReactPictureAnnotation;
+  private readonly context: ReactPictureAnnotation;
   constructor(context: ReactPictureAnnotation) {
     this.context = context;
   }

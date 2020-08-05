@@ -1,24 +1,30 @@
 import { IShape, IShapeBase } from "Shape";
 
-const NODE_WIDTH = 10;
-
 export interface ITransformer {
   checkBoundary: (positionX: number, positionY: number) => boolean;
   startTransformation: (positionX: number, positionY: number) => void;
   onTransformation: (positionX: number, positionY: number) => void;
   paint: (
     canvas2D: CanvasRenderingContext2D,
-    calculateTruePosition: (shapeData: IShapeBase) => IShapeBase
+    calculateTruePosition: (shapeData: IShapeBase) => IShapeBase,
+    scale: number
   ) => void;
 }
 
 export default class Transformer implements ITransformer {
-  private shape: IShape;
+  private readonly shape: IShape;
   private currentNodeCenterIndex: number;
+  private scale: number;
 
-  constructor(shape: IShape) {
-    this.shape = shape;
+  private get nodeWidth() {
+    return this.shape.shapeStyle.transformerSize / this.scale;
   }
+
+  constructor(shape: IShape, scale: number) {
+    this.shape = shape;
+    this.scale = scale;
+  }
+
   public checkBoundary = (positionX: number, positionY: number) => {
     const currentCenterIndex = this.getCenterIndexByCursor(
       positionX,
@@ -28,11 +34,10 @@ export default class Transformer implements ITransformer {
   };
 
   public startTransformation = (positionX: number, positionY: number) => {
-    const currentCenterIndex = this.getCenterIndexByCursor(
+    this.currentNodeCenterIndex = this.getCenterIndexByCursor(
       positionX,
       positionY
     );
-    this.currentNodeCenterIndex = currentCenterIndex;
   };
 
   public onTransformation = (positionX: number, positionY: number) => {
@@ -45,18 +50,21 @@ export default class Transformer implements ITransformer {
 
   public paint = (
     canvas2D: CanvasRenderingContext2D,
-    calculateTruePosition: (shapeData: IShapeBase) => IShapeBase
+    calculateTruePosition: (shapeData: IShapeBase) => IShapeBase,
+    scale: number
   ) => {
+    this.scale = scale;
+
     const allCentersTable = this.getAllCentersTable();
     canvas2D.save();
-    canvas2D.fillStyle = "#5c7cfa";
+    canvas2D.fillStyle = this.shape.shapeStyle.transformerBackground;
 
     for (const item of allCentersTable) {
       const { x, y, width, height } = calculateTruePosition({
-        x: item.x - NODE_WIDTH / 2,
-        y: item.y - NODE_WIDTH / 2,
-        width: NODE_WIDTH,
-        height: NODE_WIDTH
+        x: item.x - this.nodeWidth / 2,
+        y: item.y - this.nodeWidth / 2,
+        width: this.nodeWidth,
+        height: this.nodeWidth,
       });
       canvas2D.fillRect(x, y, width, height);
     }
@@ -66,7 +74,7 @@ export default class Transformer implements ITransformer {
 
   private getCenterIndexByCursor = (positionX: number, positionY: number) => {
     const allCentersTable = this.getAllCentersTable();
-    return allCentersTable.findIndex(item =>
+    return allCentersTable.findIndex((item) =>
       this.checkEachRectBoundary(item.x, item.y, positionX, positionY)
     );
   };
@@ -77,13 +85,10 @@ export default class Transformer implements ITransformer {
     positionX: number,
     positionY: number
   ) => {
-    if (
-      Math.abs(positionX - rectCenterX) <= NODE_WIDTH / 2 &&
-      Math.abs(positionY - rectCenterY) <= NODE_WIDTH / 2
-    ) {
-      return true;
-    }
-    return false;
+    return (
+      Math.abs(positionX - rectCenterX) <= this.nodeWidth / 2 &&
+      Math.abs(positionY - rectCenterY) <= this.nodeWidth / 2
+    );
   };
 
   private getAllCentersTable = () => {
@@ -98,9 +103,9 @@ export default class Transformer implements ITransformer {
             x: positionX,
             y: positionY,
             width: width + x - positionX,
-            height: height + y - positionY
+            height: height + y - positionY,
           });
-        }
+        },
       },
       {
         x: x + width / 2,
@@ -108,9 +113,9 @@ export default class Transformer implements ITransformer {
         adjust: (_: number, positionY: number) => {
           shape.adjustMark({
             y: positionY,
-            height: height + y - positionY
+            height: height + y - positionY,
           });
-        }
+        },
       },
       {
         x: x + width,
@@ -120,9 +125,9 @@ export default class Transformer implements ITransformer {
             x,
             y: positionY,
             width: positionX - x,
-            height: y + height - positionY
+            height: y + height - positionY,
           });
-        }
+        },
       },
       {
         x,
@@ -130,16 +135,16 @@ export default class Transformer implements ITransformer {
         adjust: (positionX: number) => {
           shape.adjustMark({
             x: positionX,
-            width: width + x - positionX
+            width: width + x - positionX,
           });
-        }
+        },
       },
       {
         x: x + width,
         y: y + height / 2,
         adjust: (positionX: number) => {
           shape.adjustMark({ width: positionX - x });
-        }
+        },
       },
       {
         x,
@@ -148,18 +153,18 @@ export default class Transformer implements ITransformer {
           shape.adjustMark({
             x: positionX,
             width: width + x - positionX,
-            height: positionY - y
+            height: positionY - y,
           });
-        }
+        },
       },
       {
         x: x + width / 2,
         y: y + height,
         adjust: (_: number, positionY: number) => {
           shape.adjustMark({
-            height: positionY - y
+            height: positionY - y,
           });
-        }
+        },
       },
       {
         x: x + width,
@@ -167,10 +172,10 @@ export default class Transformer implements ITransformer {
         adjust: (positionX: number, positionY: number) => {
           shape.adjustMark({
             width: positionX - x,
-            height: positionY - y
+            height: positionY - y,
           });
-        }
-      }
+        },
+      },
     ];
   };
 }

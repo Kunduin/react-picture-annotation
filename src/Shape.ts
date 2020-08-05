@@ -1,17 +1,35 @@
 import { IAnnotation } from "./Annotation";
 
-export const shapeStyle = {
+export const defaultShapeStyle: IShapeStyle = {
   padding: 5,
-  margin: 10,
+  lineWidth: 2,
+  shadowBlur: 10,
   fontSize: 12,
   fontColor: "#212529",
   fontBackground: "#f8f9fa",
   fontFamily:
     "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', Helvetica, Arial, sans-serif",
   shapeBackground: "hsla(210, 16%, 93%, 0.2)",
-  shapeStrokeStyle: "ff0000",
-  shapeShadowStyle: "hsla(210, 9%, 31%, 0.35)"
+  shapeStrokeStyle: "#f8f9fa",
+  shapeShadowStyle: "hsla(210, 9%, 31%, 0.35)",
+  transformerBackground: "#5c7cfa",
+  transformerSize: 10,
 };
+
+export interface IShapeStyle {
+  padding: number;
+  lineWidth: number;
+  shadowBlur: number;
+  fontSize: number;
+  fontColor: string;
+  fontBackground: string;
+  fontFamily: string;
+  shapeBackground: string;
+  shapeStrokeStyle: string;
+  shapeShadowStyle: string;
+  transformerBackground: string;
+  transformerSize: number;
+}
 
 export interface IShapeBase {
   x: number;
@@ -36,6 +54,7 @@ export interface IRectShapeData extends IShapeData {
 }
 
 export interface IShape {
+  shapeStyle: IShapeStyle;
   onDragStart: (positionX: number, positionY: number) => void;
   onDrag: (positionX: number, positionY: number) => void;
   checkBoundary: (positionX: number, positionY: number) => boolean;
@@ -51,22 +70,29 @@ export interface IShape {
 }
 
 export class RectShape implements IShape {
-  private annotationData: IAnnotation<IShapeData>;
+  private readonly annotationData: IAnnotation<IShapeData>;
 
-  private onChangeCallBack: () => void;
+  private readonly onChangeCallBack: () => void;
 
   private dragStartOffset: { offsetX: number; offsetY: number };
 
-  constructor(data: IAnnotation<IShapeData>, onChange: () => void) {
+  public readonly shapeStyle: IShapeStyle;
+
+  constructor(
+    data: IAnnotation<IShapeData>,
+    onChange: () => void,
+    shapeStyle: IShapeStyle = defaultShapeStyle
+  ) {
     this.annotationData = data;
     this.onChangeCallBack = onChange;
+    this.shapeStyle = shapeStyle;
   }
 
   public onDragStart = (positionX: number, positionY: number) => {
     const { x, y } = this.annotationData.mark;
     this.dragStartOffset = {
       offsetX: positionX - x,
-      offsetY: positionY - y
+      offsetY: positionY - y,
     };
   };
 
@@ -78,18 +104,15 @@ export class RectShape implements IShape {
 
   public checkBoundary = (positionX: number, positionY: number) => {
     const {
-      mark: { x, y, width, height }
+      mark: { x, y, width, height },
     } = this.annotationData;
 
-    if (
+    return (
       ((positionX > x && positionX < x + width) ||
         (positionX < x && positionX > x + width)) &&
       ((positionY > y && positionY < y + height) ||
         (positionY < y && positionY > y + height))
-    ) {
-      return true;
-    }
-    return false;
+    );
   };
 
   public paint = (
@@ -102,35 +125,44 @@ export class RectShape implements IShape {
     );
     canvas2D.save();
 
-    canvas2D.shadowBlur = 10;
-    canvas2D.shadowColor = shapeStyle.shapeShadowStyle;
-    canvas2D.strokeStyle = shapeStyle.shapeStrokeStyle;
-    canvas2D.lineWidth = 2;
+    const {
+      padding,
+      lineWidth,
+      shadowBlur,
+      fontSize,
+      fontColor,
+      fontBackground,
+      fontFamily,
+      shapeBackground,
+      shapeStrokeStyle,
+      shapeShadowStyle,
+    } = this.shapeStyle;
+
+    canvas2D.shadowBlur = shadowBlur;
+    canvas2D.shadowColor = shapeShadowStyle;
+    canvas2D.strokeStyle = shapeStrokeStyle;
+    canvas2D.lineWidth = lineWidth;
     canvas2D.strokeRect(x, y, width, height);
     canvas2D.restore();
     if (selected) {
-      canvas2D.fillStyle = shapeStyle.shapeBackground;
+      canvas2D.fillStyle = shapeBackground;
       canvas2D.fillRect(x, y, width, height);
     } else {
       const { comment } = this.annotationData;
       if (comment) {
-        canvas2D.font = `${shapeStyle.fontSize}px ${shapeStyle.fontFamily}`;
+        canvas2D.font = `${fontSize}px ${fontFamily}`;
         const metrics = canvas2D.measureText(comment);
         canvas2D.save();
-        canvas2D.fillStyle = shapeStyle.fontBackground;
+        canvas2D.fillStyle = fontBackground;
         canvas2D.fillRect(
           x,
           y,
-          metrics.width + shapeStyle.padding * 2,
-          shapeStyle.fontSize + shapeStyle.padding * 2
+          metrics.width + padding * 2,
+          fontSize + padding * 2
         );
         canvas2D.textBaseline = "top";
-        canvas2D.fillStyle = shapeStyle.fontColor;
-        canvas2D.fillText(
-          comment,
-          x + shapeStyle.padding,
-          y + shapeStyle.padding
-        );
+        canvas2D.fillStyle = fontColor;
+        canvas2D.fillText(comment, x + padding, y + padding);
       }
     }
     canvas2D.restore();
@@ -142,7 +174,7 @@ export class RectShape implements IShape {
     x = this.annotationData.mark.x,
     y = this.annotationData.mark.y,
     width = this.annotationData.mark.width,
-    height = this.annotationData.mark.height
+    height = this.annotationData.mark.height,
   }: {
     x?: number;
     y?: number;

@@ -8,13 +8,13 @@ import DraggingAnnotationState from "./DraggingAnnotationState";
 import TransformationState from "./TransfromationState";
 
 export class DefaultAnnotationState implements IAnnotationState {
-  private context: ReactPictureAnnotation;
+  private readonly context: ReactPictureAnnotation;
   constructor(context: ReactPictureAnnotation) {
     this.context = context;
   }
+
   public onMouseMove = () => undefined;
   public onMouseUp = () => undefined;
-
   public onMouseLeave = () => undefined;
 
   public onMouseDown = (positionX: number, positionY: number) => {
@@ -22,7 +22,7 @@ export class DefaultAnnotationState implements IAnnotationState {
       shapes,
       currentTransformer,
       onShapeChange,
-      setAnnotationState: setState
+      setAnnotationState: setState,
     } = this.context;
 
     if (
@@ -37,7 +37,10 @@ export class DefaultAnnotationState implements IAnnotationState {
     for (let i = shapes.length - 1; i >= 0; i--) {
       if (shapes[i].checkBoundary(positionX, positionY)) {
         this.context.selectedId = shapes[i].getAnnotationData().id;
-        this.context.currentTransformer = new Transformer(shapes[i]);
+        this.context.currentTransformer = new Transformer(
+          shapes[i],
+          this.context.scaleState.scale
+        );
         const [selectedShape] = shapes.splice(i, 1);
         shapes.push(selectedShape);
         selectedShape.onDragStart(positionX, positionY);
@@ -55,10 +58,11 @@ export class DefaultAnnotationState implements IAnnotationState {
             y: positionY,
             width: 0,
             height: 0,
-            type: "RECT"
-          }
+            type: "RECT",
+          },
         },
-        onShapeChange
+        onShapeChange,
+        this.context.annotationStyle
       )
     );
 

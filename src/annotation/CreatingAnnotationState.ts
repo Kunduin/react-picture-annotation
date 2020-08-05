@@ -3,7 +3,7 @@ import { IAnnotationState } from "./AnnotationState";
 import { DefaultAnnotationState } from "./DefaultAnnotationState";
 
 export default class CreatingAnnotationState implements IAnnotationState {
-  private context: ReactPictureAnnotation;
+  private readonly context: ReactPictureAnnotation;
   constructor(context: ReactPictureAnnotation) {
     this.context = context;
   }
@@ -13,11 +13,11 @@ export default class CreatingAnnotationState implements IAnnotationState {
     if (shapes.length > 0) {
       const currentShape = shapes[shapes.length - 1];
       const {
-        mark: { x, y }
+        mark: { x, y },
       } = currentShape.getAnnotationData();
       currentShape.adjustMark({
         width: positionX - x,
-        height: positionY - y
+        height: positionY - y,
       });
     }
   };

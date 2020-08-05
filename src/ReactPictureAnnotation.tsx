@@ -4,17 +4,26 @@ import { IAnnotationState } from "./annotation/AnnotationState";
 import { DefaultAnnotationState } from "./annotation/DefaultAnnotationState";
 import DefaultInputSection from "./DefaultInputSection";
 // import DeleteButton from "./DeleteButton";
-import { IShape, IShapeBase, RectShape, shapeStyle } from "./Shape";
+import {
+  defaultShapeStyle,
+  IShape,
+  IShapeBase,
+  IShapeStyle,
+  RectShape,
+} from "./Shape";
 import Transformer, { ITransformer } from "./Transformer";
 
 interface IReactPictureAnnotationProps {
   annotationData?: IAnnotation[];
   selectedId?: string | null;
+  scrollSpeed: number;
+  marginWithInput: number;
   onChange: (annotationData: IAnnotation[]) => void;
   onSelect: (id: string | null) => void;
   width: number;
   height: number;
   image: string;
+  annotationStyle: IShapeStyle;
   inputElement: (
     value: string,
     onChange: (value: string) => void,
@@ -31,22 +40,16 @@ interface IStageState {
 const defaultState: IStageState = {
   scale: 1,
   originX: 0,
-  originY: 0
+  originY: 0,
 };
 
 export default class ReactPictureAnnotation extends React.Component<
   IReactPictureAnnotationProps
 > {
-  set selectedId(value: string | null) {
-    const { onSelect } = this.props;
-    this.selectedIdTrueValue = value;
-    onSelect(value);
-  }
-
-  get selectedId() {
-    return this.selectedIdTrueValue;
-  }
   public static defaultProps = {
+    marginWithInput: 10,
+    scrollSpeed: 0.0005,
+    annotationStyle: defaultShapeStyle,
     inputElement: (
       value: string,
       onChange: (value: string) => void,
@@ -57,20 +60,35 @@ export default class ReactPictureAnnotation extends React.Component<
         onChange={onChange}
         onDelete={onDelete}
       />
-    )
+    ),
   };
-
-  public shapes: IShape[] = [];
-  public currentTransformer: ITransformer;
 
   public state = {
     inputPosition: {
       left: 0,
-      top: 0
+      top: 0,
     },
     showInput: false,
-    inputComment: ""
+    inputComment: "",
   };
+
+  set selectedId(value: string | null) {
+    const { onSelect } = this.props;
+    this.selectedIdTrueValue = value;
+    onSelect(value);
+  }
+
+  get selectedId() {
+    return this.selectedIdTrueValue;
+  }
+
+  get annotationStyle() {
+    return this.props.annotationStyle;
+  }
+  public shapes: IShape[] = [];
+  public scaleState = defaultState;
+  public currentTransformer: ITransformer;
+
   private currentAnnotationData: IAnnotation[] = [];
   private selectedIdTrueValue: string | null;
   private canvasRef = React.createRef<HTMLCanvasElement>();
@@ -81,7 +99,6 @@ export default class ReactPictureAnnotation extends React.Component<
   private currentAnnotationState: IAnnotationState = new DefaultAnnotationState(
     this
   );
-  private scaleState = defaultState;
 
   public componentDidMount = () => {
     const currentCanvas = this.canvasRef.current;
@@ -122,7 +139,7 @@ export default class ReactPictureAnnotation extends React.Component<
     const { originX, originY, scale } = this.scaleState;
     return {
       positionX: (positionX - originX) / scale,
-      positionY: (positionY - originY) / scale
+      positionY: (positionY - originY) / scale,
     };
   };
 
@@ -133,7 +150,7 @@ export default class ReactPictureAnnotation extends React.Component<
       x: x * scale + originX,
       y: y * scale + originY,
       width: width * scale,
-      height: height * scale
+      height: height * scale,
     };
   };
 
@@ -199,23 +216,27 @@ export default class ReactPictureAnnotation extends React.Component<
 
         if (isSelected) {
           if (!this.currentTransformer) {
-            this.currentTransformer = new Transformer(item);
+            this.currentTransformer = new Transformer(
+              item,
+              this.scaleState.scale
+            );
           }
 
           hasSelectedItem = true;
 
           this.currentTransformer.paint(
             this.canvas2D,
-            this.calculateShapePosition
+            this.calculateShapePosition,
+            this.scaleState.scale
           );
 
           this.setState({
             showInput: true,
             inputPosition: {
               left: x,
-              top: y + height + shapeStyle.margin
+              top: y + height + this.props.marginWithInput,
             },
-            inputComment: item.getAnnotationData().comment || ""
+            inputComment: item.getAnnotationData().comment || "",
           });
         }
       }
@@ -223,12 +244,12 @@ export default class ReactPictureAnnotation extends React.Component<
       if (!hasSelectedItem) {
         this.setState({
           showInput: false,
-          inputComment: ""
+          inputComment: "",
         });
       }
     }
 
-    this.currentAnnotationData = this.shapes.map(item =>
+    this.currentAnnotationData = this.shapes.map((item) =>
       item.getAnnotationData()
     );
     const { onChange } = this.props;
@@ -240,11 +261,14 @@ export default class ReactPictureAnnotation extends React.Component<
     if (annotationData) {
       const refreshShapesWithAnnotationData = () => {
         this.selectedId = null;
-        const nextShapes = annotationData.map(
-          eachAnnotationData =>
-            new RectShape(eachAnnotationData, this.onShapeChange)
+        this.shapes = annotationData.map(
+          (eachAnnotationData) =>
+            new RectShape(
+              eachAnnotationData,
+              this.onShapeChange,
+              this.annotationStyle
+            )
         );
-        this.shapes = nextShapes;
         this.onShapeChange();
       };
 
@@ -253,7 +277,7 @@ export default class ReactPictureAnnotation extends React.Component<
       } else {
         for (const annotationDataItem of annotationData) {
           const targetShape = this.shapes.find(
-            item => item.getAnnotationData().id === annotationDataItem.id
+            (item) => item.getAnnotationData().id === annotationDataItem.id
           );
           if (targetShape && targetShape.equal(annotationDataItem)) {
             continue;
@@ -277,7 +301,7 @@ export default class ReactPictureAnnotation extends React.Component<
 
   private onDelete = () => {
     const deleteTarget = this.shapes.findIndex(
-      shape => shape.getAnnotationData().id === this.selectedId
+      (shape) => shape.getAnnotationData().id === this.selectedId
     );
     if (deleteTarget >= 0) {
       this.shapes.splice(deleteTarget, 1);
@@ -300,7 +324,7 @@ export default class ReactPictureAnnotation extends React.Component<
 
   private onInputCommentChange = (comment: string) => {
     const selectedShapeIndex = this.shapes.findIndex(
-      item => item.getAnnotationData().id === this.selectedId
+      (item) => item.getAnnotationData().id === this.selectedId
     );
     this.shapes[selectedShapeIndex].setComment(comment);
     this.setState({ inputComment: comment });
@@ -343,14 +367,14 @@ export default class ReactPictureAnnotation extends React.Component<
               this.scaleState = {
                 originX: 0,
                 originY: (canvasHeight - scale * height) / 2,
-                scale
+                scale,
               };
             } else {
               const scale = canvasHeight / height;
               this.scaleState = {
                 originX: (canvasWidth - scale * width) / 2,
                 originY: 0,
-                scale
+                scale,
               };
             }
           }
@@ -363,7 +387,7 @@ export default class ReactPictureAnnotation extends React.Component<
     }
   };
 
-  private onMouseDown: MouseEventHandler<HTMLCanvasElement> = event => {
+  private onMouseDown: MouseEventHandler<HTMLCanvasElement> = (event) => {
     const { offsetX, offsetY } = event.nativeEvent;
     const { positionX, positionY } = this.calculateMousePosition(
       offsetX,
@@ -372,7 +396,7 @@ export default class ReactPictureAnnotation extends React.Component<
     this.currentAnnotationState.onMouseDown(positionX, positionY);
   };
 
-  private onMouseMove: MouseEventHandler<HTMLCanvasElement> = event => {
+  private onMouseMove: MouseEventHandler<HTMLCanvasElement> = (event) => {
     const { offsetX, offsetY } = event.nativeEvent;
     const { positionX, positionY } = this.calculateMousePosition(
       offsetX,
@@ -401,7 +425,7 @@ export default class ReactPictureAnnotation extends React.Component<
     }
 
     const { scale: preScale } = this.scaleState;
-    this.scaleState.scale += event.deltaY * 0.005;
+    this.scaleState.scale += event.deltaY * this.props.scrollSpeed;
     if (this.scaleState.scale > 10) {
       this.scaleState.scale = 10;
     }
