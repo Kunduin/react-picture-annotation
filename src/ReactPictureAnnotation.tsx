@@ -24,6 +24,7 @@ interface IReactPictureAnnotationProps {
   height: number;
   image: string;
   annotationStyle: IShapeStyle;
+  defaultAnnotationSize?: number[];
   inputElement: (
     value: string,
     onChange: (value: string) => void,
@@ -85,6 +86,11 @@ export default class ReactPictureAnnotation extends React.Component<
   get annotationStyle() {
     return this.props.annotationStyle;
   }
+
+  get defaultAnnotationSize() {
+    return this.props.defaultAnnotationSize;
+  }
+
   public shapes: IShape[] = [];
   public scaleState = defaultState;
   public currentTransformer: ITransformer;

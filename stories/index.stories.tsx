@@ -66,6 +66,7 @@ storiesOf("Hello World", module)
             shapeStrokeStyle: "#2193ff",
             transformerBackground: "black",
           }}
+          defaultAnnotationSize={[120, 90]}
           image="https://bequank.oss-cn-beijing.aliyuncs.com/landpage/large/60682895_p0_master1200.jpg"
           inputElement={(value, onChange, onDelete) => (
             <DefaultInputSection
