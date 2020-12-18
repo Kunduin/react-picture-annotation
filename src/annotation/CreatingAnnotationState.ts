@@ -1,4 +1,5 @@
 import { ReactPictureAnnotation } from "index";
+import { IShape } from "Shape";
 import { IAnnotationState } from "./AnnotationState";
 import { DefaultAnnotationState } from "./DefaultAnnotationState";
 
@@ -32,10 +33,34 @@ export default class CreatingAnnotationState implements IAnnotationState {
     ) {
       shapes.push(data);
     } else {
-      this.context.selectedId = null;
-      onShapeChange();
+      if (data && this.applyDefaultAnnotationSize(data)) {
+        shapes.push(data);
+        onShapeChange();
+      } else {
+        this.context.selectedId = null;
+        onShapeChange();
+      }
     }
     setAnnotationState(new DefaultAnnotationState(this.context));
+  };
+
+  private applyDefaultAnnotationSize = (shape: IShape) => {
+    if (this.context.selectedId) {
+      // Don't capture clicks meant to de-select another annotation.
+      return false;
+    }
+    if (
+      !this.context.defaultAnnotationSize ||
+      this.context.defaultAnnotationSize.length !== 2
+    ) {
+      return false;
+    }
+    const [width, height] = this.context.defaultAnnotationSize;
+    shape.adjustMark({
+      width,
+      height,
+    });
+    return true;
   };
 
   public onMouseLeave = () => this.onMouseUp();
