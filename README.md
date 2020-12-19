@@ -122,3 +122,9 @@ export const defaultShapeStyle: IShapeStyle = {
 ## Licence
 
 [MIT License](https://github.com/kunduin/react-picture-annotation/blob/master/LICENSE)
+
+## How To Contribute
+
+This repo uses semantic release. By running `npm run commit` and merging commits into master branch, travis will automatically trigger release.
+
+Thanks all your great contributions.
