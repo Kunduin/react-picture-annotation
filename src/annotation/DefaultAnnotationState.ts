@@ -25,10 +25,7 @@ export class DefaultAnnotationState implements IAnnotationState {
       setAnnotationState: setState,
     } = this.context;
 
-    if (
-      currentTransformer &&
-      currentTransformer.checkBoundary(positionX, positionY)
-    ) {
+    if (currentTransformer?.checkBoundary(positionX, positionY)) {
       currentTransformer.startTransformation(positionX, positionY);
       setState(new TransformationState(this.context));
       return;
@@ -39,7 +36,7 @@ export class DefaultAnnotationState implements IAnnotationState {
         this.context.selectedId = shapes[i].getAnnotationData().id;
         this.context.currentTransformer = new Transformer(
           shapes[i],
-          this.context.scaleState.scale
+          this.context.state.imageScale.scale
         );
         const [selectedShape] = shapes.splice(i, 1);
         shapes.push(selectedShape);
