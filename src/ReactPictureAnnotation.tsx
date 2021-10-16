@@ -25,6 +25,7 @@ interface IReactPictureAnnotationProps {
   image: string;
   annotationStyle: IShapeStyle;
   defaultAnnotationSize?: number[];
+  panCode: string;
   inputElement: (
     value: string,
     onChange: (value: string) => void,
@@ -44,13 +45,12 @@ const defaultState: IStageState = {
   originY: 0,
 };
 
-export default class ReactPictureAnnotation extends React.Component<
-  IReactPictureAnnotationProps
-> {
+export default class ReactPictureAnnotation extends React.Component<IReactPictureAnnotationProps> {
   public static defaultProps = {
     marginWithInput: 10,
     scrollSpeed: 0.0005,
     annotationStyle: defaultShapeStyle,
+    panCode: "Space",
     inputElement: (
       value: string,
       onChange: (value: string) => void,
@@ -71,6 +71,8 @@ export default class ReactPictureAnnotation extends React.Component<
     },
     showInput: false,
     inputComment: "",
+    panKeyPressed: false,
+    imageScale: defaultState,
   };
 
   set selectedId(value: string | null) {
@@ -92,7 +94,6 @@ export default class ReactPictureAnnotation extends React.Component<
   }
 
   public shapes: IShape[] = [];
-  public scaleState = defaultState;
   public currentTransformer: ITransformer;
 
   private currentAnnotationData: IAnnotation[] = [];
@@ -102,6 +103,7 @@ export default class ReactPictureAnnotation extends React.Component<
   private imageCanvasRef = React.createRef<HTMLCanvasElement>();
   private imageCanvas2D?: CanvasRenderingContext2D | null;
   private currentImageElement?: HTMLImageElement;
+  private mouseDown = false;
   private currentAnnotationState: IAnnotationState = new DefaultAnnotationState(
     this
   );
@@ -119,6 +121,8 @@ export default class ReactPictureAnnotation extends React.Component<
 
     this.syncAnnotationData();
     this.syncSelectedId();
+    document.addEventListener("keydown", this.onPanKeyDown);
+    document.addEventListener("keyup", this.onPanKeyUp);
   };
 
   public componentDidUpdate = (preProps: IReactPictureAnnotationProps) => {
@@ -141,8 +145,13 @@ export default class ReactPictureAnnotation extends React.Component<
     this.syncSelectedId();
   };
 
+  public componentWillUnmount = () => {
+    document.removeEventListener("keydown", this.onPanKeyDown);
+    document.removeEventListener("keyup", this.onPanKeyUp);
+  };
+
   public calculateMousePosition = (positionX: number, positionY: number) => {
-    const { originX, originY, scale } = this.scaleState;
+    const { originX, originY, scale } = this.state.imageScale;
     return {
       positionX: (positionX - originX) / scale,
       positionY: (positionY - originY) / scale,
@@ -150,7 +159,7 @@ export default class ReactPictureAnnotation extends React.Component<
   };
 
   public calculateShapePosition = (shapeData: IShapeBase): IShapeBase => {
-    const { originX, originY, scale } = this.scaleState;
+    const { originX, originY, scale } = this.state.imageScale;
     const { x, y, width, height } = shapeData;
     return {
       x: x * scale + originX,
@@ -162,9 +171,13 @@ export default class ReactPictureAnnotation extends React.Component<
 
   public render() {
     const { width, height, inputElement } = this.props;
-    const { showInput, inputPosition, inputComment } = this.state;
+    const { showInput, inputPosition, inputComment, panKeyPressed } =
+      this.state;
     return (
-      <div className="rp-stage">
+      <div
+        className="rp-stage"
+        style={{ cursor: panKeyPressed ? "grabbing" : "auto" }}
+      >
         <canvas
           style={{ width, height }}
           className="rp-image"
@@ -224,7 +237,7 @@ export default class ReactPictureAnnotation extends React.Component<
           if (!this.currentTransformer) {
             this.currentTransformer = new Transformer(
               item,
-              this.scaleState.scale
+              this.state.imageScale.scale
             );
           }
 
@@ -233,7 +246,7 @@ export default class ReactPictureAnnotation extends React.Component<
           this.currentTransformer.paint(
             this.canvas2D,
             this.calculateShapePosition,
-            this.scaleState.scale
+            this.state.imageScale.scale
           );
 
           this.setState({
@@ -305,6 +318,17 @@ export default class ReactPictureAnnotation extends React.Component<
     }
   };
 
+  private onPanKeyDown = (e: KeyboardEvent) => {
+    if (!e.repeat && e.code === this.props.panCode) {
+      this.setState({ panKeyPressed: true });
+    }
+  };
+  private onPanKeyUp = (e: KeyboardEvent) => {
+    if (e.code === this.props.panCode) {
+      this.setState({ panKeyPressed: false });
+    }
+  };
+
   private onDelete = () => {
     const deleteTarget = this.shapes.findIndex(
       (shape) => shape.getAnnotationData().id === this.selectedId
@@ -351,7 +375,7 @@ export default class ReactPictureAnnotation extends React.Component<
     this.cleanImage();
     if (this.imageCanvas2D && this.imageCanvasRef.current) {
       if (this.currentImageElement) {
-        const { originX, originY, scale } = this.scaleState;
+        const { originX, originY, scale } = this.state.imageScale;
         this.imageCanvas2D.drawImage(
           this.currentImageElement,
           originX,
@@ -370,18 +394,22 @@ export default class ReactPictureAnnotation extends React.Component<
           if (!isNaN(imageNodeRatio) && !isNaN(canvasNodeRatio)) {
             if (imageNodeRatio < canvasNodeRatio) {
               const scale = canvasWidth / width;
-              this.scaleState = {
-                originX: 0,
-                originY: (canvasHeight - scale * height) / 2,
-                scale,
-              };
+              this.setState({
+                imageScale: {
+                  originX: 0,
+                  originY: (canvasHeight - scale * height) / 2,
+                  scale,
+                },
+              });
             } else {
               const scale = canvasHeight / height;
-              this.scaleState = {
-                originX: (canvasWidth - scale * width) / 2,
-                originY: 0,
-                scale,
-              };
+              this.setState({
+                imageScale: {
+                  originX: (canvasWidth - scale * width) / 2,
+                  originY: 0,
+                  scale,
+                },
+              });
             }
           }
           this.onImageChange();
@@ -399,11 +427,28 @@ export default class ReactPictureAnnotation extends React.Component<
       offsetX,
       offsetY
     );
+    this.mouseDown = true;
+    if (this.state.panKeyPressed) return;
     this.currentAnnotationState.onMouseDown(positionX, positionY);
   };
 
   private onMouseMove: MouseEventHandler<HTMLCanvasElement> = (event) => {
-    const { offsetX, offsetY } = event.nativeEvent;
+    const { movementX, movementY, offsetX, offsetY } = event.nativeEvent;
+    const { imageScale, panKeyPressed } = this.state;
+    if (panKeyPressed && this.mouseDown) {
+      this.setState({
+        imageScale: {
+          ...imageScale,
+          originX: imageScale.originX + movementX,
+          originY: imageScale.originY + movementY,
+        },
+      });
+      requestAnimationFrame(() => {
+        this.onShapeChange();
+        this.onImageChange();
+      });
+      return;
+    }
     const { positionX, positionY } = this.calculateMousePosition(
       offsetX,
       offsetY
@@ -412,6 +457,7 @@ export default class ReactPictureAnnotation extends React.Component<
   };
 
   private onMouseUp: MouseEventHandler<HTMLCanvasElement> = () => {
+    this.mouseDown = false;
     this.currentAnnotationState.onMouseUp();
   };
 
@@ -430,23 +476,21 @@ export default class ReactPictureAnnotation extends React.Component<
       event.currentTarget.scrollTop = 0;
     }
 
-    const { scale: preScale } = this.scaleState;
-    this.scaleState.scale += event.deltaY * this.props.scrollSpeed;
-    if (this.scaleState.scale > 10) {
-      this.scaleState.scale = 10;
+    const { originX, originY, scale } = this.state.imageScale;
+    let newScale = scale + event.deltaY * this.props.scrollSpeed;
+    if (newScale > 10) {
+      newScale = 10;
     }
-    if (this.scaleState.scale < 0.1) {
-      this.scaleState.scale = 0.1;
+    if (newScale < 0.1) {
+      newScale = 0.1;
     }
-
-    const { originX, originY, scale } = this.scaleState;
     const { offsetX, offsetY } = event.nativeEvent;
-    this.scaleState.originX =
-      offsetX - ((offsetX - originX) / preScale) * scale;
-    this.scaleState.originY =
-      offsetY - ((offsetY - originY) / preScale) * scale;
+    const newOriginX = offsetX - ((offsetX - originX) / scale) * newScale;
+    const newOriginY = offsetY - ((offsetY - originY) / scale) * newScale;
 
-    this.setState({ imageScale: this.scaleState });
+    this.setState({
+      imageScale: { scale: newScale, originX: newOriginX, originY: newOriginY },
+    });
 
     requestAnimationFrame(() => {
       this.onShapeChange();

@@ -71,6 +71,7 @@ ReactDOM.render(<App />, rootElement);
 | scrollSpeed           | `number`                                                                                        | Speed of wheel zoom, default 0.0005        | X        |
 | marginWithInput       | `number`                                                                                        | Margin between input and mark, default 1   | X        |
 | defaultAnnotationSize | `number[]`                                                                                      | Size for annotations created by clicking.  | X        |
+| panCode               | `string`                                                                                        | Keyboard code to pan, default 'Space'      | X        |
 
 ## IShapeStyle
 
