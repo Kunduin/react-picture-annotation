@@ -53,28 +53,51 @@ storiesOf("Hello World", module)
         };
       }, []);
 
+      const onSelectNextClick = () => {
+        let i = 0;
+        let annotationId = "";
+        while (i < annotationData.length) {
+          if (annotationData[i].id === selectedId) {
+            if (i + 1 < annotationData.length) {
+              annotationId = annotationData[i + 1].id;
+            } else {
+              annotationId = annotationData[0].id;
+            }
+          }
+          i += 1;
+        }
+        setSelectedId(annotationId);
+      };
+
       return (
-        <ReactPictureAnnotation
-          width={size.width}
-          height={size.height}
-          annotationData={annotationData}
-          onChange={(data) => setAnnotationData(data)}
-          selectedId={selectedId}
-          onSelect={(e) => setSelectedId(e)}
-          annotationStyle={{
-            ...defaultShapeStyle,
-            shapeStrokeStyle: "#2193ff",
-            transformerBackground: "black",
-          }}
-          defaultAnnotationSize={[120, 90]}
-          image="https://bequank.oss-cn-beijing.aliyuncs.com/landpage/large/60682895_p0_master1200.jpg"
-          inputElement={(value, onChange, onDelete) => (
-            <DefaultInputSection
-              placeholder={"Hello world"}
-              {...{ value, onChange, onDelete }}
-            />
-          )}
-        />
+        <div>
+          <input
+            value={"Select next"}
+            type={"button"}
+            onClick={onSelectNextClick}
+          />
+          <ReactPictureAnnotation
+            width={size.width}
+            height={size.height}
+            annotationData={annotationData}
+            onChange={(data) => setAnnotationData(data)}
+            selectedId={selectedId}
+            onSelect={(e) => setSelectedId(e)}
+            annotationStyle={{
+              ...defaultShapeStyle,
+              shapeStrokeStyle: "#2193ff",
+              transformerBackground: "black",
+            }}
+            defaultAnnotationSize={[120, 90]}
+            image="https://bequank.oss-cn-beijing.aliyuncs.com/landpage/large/60682895_p0_master1200.jpg"
+            inputElement={(value, onChange, onDelete) => (
+              <DefaultInputSection
+                placeholder={"Hello world"}
+                {...{ value, onChange, onDelete }}
+              />
+            )}
+          />
+        </div>
       );
     };
 
