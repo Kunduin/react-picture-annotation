@@ -1,6 +1,7 @@
 import { IShape, IShapeBase } from "Shape";
 
 export interface ITransformer {
+  shape: IShape;
   checkBoundary: (positionX: number, positionY: number) => boolean;
   startTransformation: (positionX: number, positionY: number) => void;
   onTransformation: (positionX: number, positionY: number) => void;
@@ -12,7 +13,7 @@ export interface ITransformer {
 }
 
 export default class Transformer implements ITransformer {
-  private readonly shape: IShape;
+  public readonly shape: IShape;
   private currentNodeCenterIndex: number;
   private scale: number;
 

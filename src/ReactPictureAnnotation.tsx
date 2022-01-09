@@ -221,7 +221,11 @@ export default class ReactPictureAnnotation extends React.Component<
         );
 
         if (isSelected) {
-          if (!this.currentTransformer) {
+          if (
+            !this.currentTransformer ||
+            this.currentTransformer.shape.getAnnotationData().id !==
+              item.getAnnotationData().id
+          ) {
             this.currentTransformer = new Transformer(
               item,
               this.scaleState.scale
